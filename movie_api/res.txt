@@ -1,0 +1,168 @@
+Absolutely — let’s break your FastAPI code down step by step 👇
+This is a simple and clean in-memory CRUD API (Create, Read, Update, Delete) for movies.
+No database — just a Python list holding the data.
+
+🧩 1. Setup
+from fastapi import FastAPI, Body
+
+app = FastAPI()
+
+
+
+FastAPI() creates the API app.
+
+
+Body() is used to read JSON data sent in the request body (like when adding or updating a movie).
+
+
+
+🎞️ 2. Data
+movies = [
+    {"title": "Black Mirror", "director": "ABC", "year": 2011},
+    {"title": "Jurassic World", "director": "DEF", "year": 2014},
+    {"title": "27 Dresses", "director": "GHIJ", "year": 2004},
+]
+
+This is your “temporary database” — a simple Python list of dictionaries, each dictionary representing a movie.
+
+📘 3. GET → Read All Movies
+@app.get("/movies")
+async def read_all_movies():
+    return movies
+
+
+
+When you open /movies in the browser or Swagger UI, it returns the entire list.
+
+
+HTTP Method: GET
+
+
+Example URL:
+👉 http://127.0.0.1:8000/movies
+
+
+Response:
+[
+  {"title": "Black Mirror", "director": "ABC", "year": 2011},
+  {"title": "Jurassic World", "director": "DEF", "year": 2014},
+  {"title": "27 Dresses", "director": "GHIJ", "year": 2004}
+]
+
+
+🎬 4. GET → Read One Movie by Title
+@app.get("/movies/{movie_title}")
+async def read_movie(movie_title: str):
+    for movie in movies:
+        if movie["title"].casefold() == movie_title.casefold():
+            return movie
+
+
+
+Reads a specific movie using its title.
+
+
+.casefold() makes the comparison case-insensitive (so "black mirror" works too).
+
+
+HTTP Method: GET
+
+
+Example URL:
+👉 http://127.0.0.1:8000/movies/Black%20Mirror
+
+
+Response:
+{"title": "Black Mirror", "director": "ABC", "year": 2011}
+
+
+🟢 5. POST → Create a Movie
+@app.post("/movies/create_movie")
+async def create_movie(new_movie=Body()):
+    movies.append(new_movie)
+    return {"message": "Movie added successfully"}
+
+
+
+Adds a new movie to the list.
+
+
+Body() reads the JSON body sent in the request.
+
+
+Example Request:
+POST → /movies/create_movie
+{
+  "title": "Oppenheimer",
+  "director": "Christopher Nolan",
+  "year": 2023
+}
+
+Response:
+{"message": "Movie added successfully"}
+
+
+🟠 6. PUT → Update a Movie
+@app.put("/movies/update_movie/{movie_title}")
+async def update_movie(movie_title: str, updated_movie=Body()):
+    for i, movie in enumerate(movies):
+        if movie["title"].casefold() == movie_title.casefold():
+            movies[i] = updated_movie
+            return {"message": "Movie updated successfully"}
+
+
+
+Updates an existing movie by title.
+
+
+Finds the movie in the list, replaces it with the new data.
+
+
+Example Request:
+PUT → /movies/update_movie/Black%20Mirror
+{
+  "title": "Black Mirror",
+  "director": "New Director",
+  "year": 2024
+}
+
+Response:
+{"message": "Movie updated successfully"}
+
+
+🔴 7. DELETE → Delete a Movie
+@app.delete("/movies/delete_movie/{movie_title}")
+async def delete_movie(movie_title: str):
+    for movie in movies:
+        if movie["title"].casefold() == movie_title.casefold():
+            movies.remove(movie)
+            return {"message": "Movie deleted successfully"}
+
+
+
+Deletes a movie by title.
+
+
+Finds the matching movie and removes it from the list.
+
+
+Example Request:
+DELETE → /movies/delete_movie/Jurassic%20World
+Response:
+{"message": "Movie deleted successfully"}
+
+
+⚙️ 8. Run the App
+Run this command in your terminal:
+uvicorn main:app --reload
+
+Then open 👉 http://127.0.0.1:8000/docs
+You’ll see an interactive Swagger UI where you can test all endpoints easily.
+
+
+@app.put("/movies/update_movie/{movie_title}")
+async def update_movie(movie_title: str, updated_movie=Body()):
+    for i, movie in enumerate(movies):
+        if movie["title"].casefold() == movie_title.casefold():
+            movies[i] = updated_movie
+            return {"message": "Movie updated successfully"}
